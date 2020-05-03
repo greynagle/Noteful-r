@@ -1,0 +1,21 @@
+.AddNote{
+    background-color: #010d1e;
+    color: #cacaca;
+    height:auto;
+    margin-bottom: 8px;
+    max-width: 380px;
+    padding: 8px 0 8px 8px;
+    position: relative;
+}
+
+#folder_choice{
+	width: 40%;
+	height: 1.5em;
+
+}
+
+textarea[id='content']{
+	width: 70%;
+	height:100px;
+	word-wrap: soft;
+}
