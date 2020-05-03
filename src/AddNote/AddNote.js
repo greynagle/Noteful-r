@@ -1,13 +1,16 @@
 import React from "react";
 import ApiContext from "../ApiContext";
 import "./AddNote.css";
-import PropTypes from 'prop-types'
+import PropTypes from "prop-types";
 
 export default class AddNote extends React.Component {
     state = {
         noteLabel: "",
+        validLabel: false,
         noteContent: "",
+        validContent: false,
         folderChoiceId: "",
+		submitted:false,
     };
 
     static defaultProps = {
@@ -42,53 +45,76 @@ export default class AddNote extends React.Component {
     };
 
     handleSubmit = (e) => {
+		const { addNote } = this.context
         e.preventDefault();
-        if (this.state.noteLabel.trim()===""){
-			return console.error('Name field required')
-		}
-		if (this.state.noteContent.trim()===""){
-			return console.error('Note content required')
-		}
-        fetch("https://helloacm.com/api/random/?n=16")
-            .then((res) => res.json())
-            .then((id) => {
-                fetch("http://localhost:9090/notes/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        id: id,
-                        name: this.state.noteLabel,
-                        modified: new Date().toISOString(),
-                        folderId: this.state.folderChoiceId,
-                        content: this.state.noteContent,
-                    }),
+		this.setState({submitted:true})
+		this.state.noteLabel.trim() !== ""
+            ? this.setState({ validLabel: true })
+            : this.setState({ validLabel: false });
+		this.state.noteContent.trim() !== ""
+            ? this.setState({ validContent: true })
+            : this.setState({ validContent: false });
+
+        if (this.state.noteLabel.trim() !== "" && this.state.noteContent.trim() !== "") {
+            return fetch("https://helloacm.com/api/random/?n=16")
+                .then((res) => res.json())
+                .then((id) => {
+                    fetch("http://localhost:9090/notes/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            name: this.state.noteLabel,
+                            modified: new Date().toISOString(),
+                            folderId: this.state.folderChoiceId,
+                            content: this.state.noteContent,
+                        }),
+                    })
+                        .then((res) => res.json())
+                        .then((resJson) => 
+							addNote(resJson)	
+						)
+                        .then(() =>
+                            this.setState({
+                                noteLabel: "",
+                                validLabel: false,
+                                noteContent: "",
+                                validContent: false,
+                                folderChoiceId: "",
+								submitted:false
+                            })
+                        )
+                        .catch((error) => {
+                            console.error({ error });
+                        });
                 })
-                    .then((res) => res.json())
-                    .then((resJson) => console.log(resJson))
-                    .then(() =>
-                        this.setState({
-                            noteLabel: "",
-                            noteContent: "",
-                            folderChoiceId: "",
-                        })
-                    )
-                    .catch((error) => {
-                        console.error({ error });
-                    });
-            })
-            .catch((error) => {
-                console.error({ error });
-            });
+                .catch((error) => {
+                    console.error({ error });
+                });
+        }
+
     };
 
     render() {
-        // const { notes } = this.context;
+        let varClassLabel = "hidden";
+        let varClassContent = "hidden";
+        if (!this.state.validLabel && this.state.submitted) {
+            varClassLabel = "error";
+        }
+        if (!this.state.validContent && this.state.submitted) {
+            varClassContent = "error";
+        }
+
         const { folders } = this.context;
         return (
             <section className="AddNote">
                 <form onSubmit={this.handleSubmit}>
+                    <span className={varClassLabel}>
+                        Please enter a valid note label
+                    </span>
+                    <br />
                     <label htmlFor="label" />
                     <input
                         type="text"
@@ -98,8 +124,12 @@ export default class AddNote extends React.Component {
                         value={this.state.noteLabel}
                         onChange={this.handleLabelChange}
                         autoComplete="off"
-						required
+                        required
                     />
+                    <br />
+                    <span className={varClassContent}>
+                        Please enter valid note content
+                    </span>
                     <br />
                     <label htmlFor="content" />
                     <textarea
@@ -109,7 +139,7 @@ export default class AddNote extends React.Component {
                         value={this.state.noteContent}
                         onChange={this.handleContentChange}
                         autoComplete="off"
-						required
+                        required
                     />
                     <br />
                     <label htmlFor="folder_choice" />
@@ -143,6 +173,6 @@ export default class AddNote extends React.Component {
 }
 
 AddNote.propTypes = {
-    history: PropTypes.object,
-    match: PropTypes.object,
+    history: PropTypes.object.isRequired,
+    match: PropTypes.object.isRequired,
 };

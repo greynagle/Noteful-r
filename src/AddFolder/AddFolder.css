@@ -1,0 +1,9 @@
+.hidden{
+	display: none;
+}
+
+span.error{
+	color: red;
+	text-emphasis: bold;
+
+}

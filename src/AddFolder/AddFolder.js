@@ -1,10 +1,12 @@
 import React from "react";
 import ApiContext from "../ApiContext";
 import PropTypes from 'prop-types'
+import './AddFolder.css'
 
 export default class AddFolder extends React.Component {
     state = {
         folderName: "",
+		validName:true,
         id: "",
     };
 
@@ -29,8 +31,8 @@ export default class AddFolder extends React.Component {
         e.preventDefault();
         const { folders } = this.context;
 
-		if(this.state.folderName==="" || folders.map(val=> val.name).includes(this.state.folderName)){
-			return console.error('Please choose a unique name')
+		if(this.state.folderName.trim()==="" || folders.map(val=> val.name).includes(this.state.folderName)){
+			return this.setState({validName:false})
 		}
         fetch("https://helloacm.com/api/random/?n=16")
             .then((res) => res.json())
@@ -48,6 +50,7 @@ export default class AddFolder extends React.Component {
                     .then(() =>
                         this.setState({
                             folderName: "",
+							validName:true
                         })
                     )
                     .catch((error) => {
@@ -60,10 +63,15 @@ export default class AddFolder extends React.Component {
     };
 
     render() {
+		let varClass = 'hidden'
+		if(!this.state.validName){
+			varClass = 'error'
+		}
         return (
             <section className="AddNote">
                 <form onSubmit={this.handleSubmit}>
-                    <label htmlFor="Folder_Name" />
+                    <span className={varClass}>Please enter a valid/unused folder name</span>
+					<label htmlFor="Folder_Name" />
                     <input
                         type="text"
                         id="Folder_Name"
@@ -88,6 +96,6 @@ export default class AddFolder extends React.Component {
 }
 
 AddFolder.propTypes = {
-    history: PropTypes.object,
-    match: PropTypes.object,
+    history: PropTypes.object.isRequired,
+    match: PropTypes.object.isRequired,
 };

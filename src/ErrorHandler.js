@@ -26,6 +26,6 @@ ErrorHandler.propTypes={
 		PropTypes.node,
 		PropTypes.array,
 		PropTypes.object
-	])
+	]).isRequired
 }
 

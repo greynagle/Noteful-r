@@ -19,3 +19,12 @@ textarea[id='content']{
 	height:100px;
 	word-wrap: soft;
 }
+
+.hidden{
+	display: none;
+}
+
+span.error{
+	color:red;
+	text-emphasis: bold;
+}

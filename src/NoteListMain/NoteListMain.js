@@ -56,6 +56,6 @@ export default class NoteListMain extends React.Component {
 }
 
 NoteListMain.propTypes = {
-    history: PropTypes.object,
-    match: PropTypes.object,
+    history: PropTypes.object.isRequired,
+    match: PropTypes.object.isRequired,
 };

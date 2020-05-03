@@ -12,10 +12,44 @@ import config from "../config";
 import "./App.css";
 
 class App extends Component {
-    state = {
-        notes: [],
-        folders: [],
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            notes: [],
+            folders: [],
+        };
+        this.addFolder = (folder) =>
+            this.setState({ ...this.state.folders, folder });
+        this.addNote = (note) => this.setState({ ...this.state.notes, note });
+    }
+
+    componentDidUpdate(prevState) {
+        if (
+            prevState.notes !== this.state.notes ||
+            prevState.folders !== this.state.folders
+        ) {
+            Promise.all([
+                fetch(`${config.API_ENDPOINT}/notes`),
+                fetch(`${config.API_ENDPOINT}/folders`),
+            ])
+                .then(([notesRes, foldersRes]) => {
+                    // if notes break, reject
+                    if (!notesRes.ok)
+                        return notesRes.json().then((e) => Promise.reject(e));
+                    // if folders break reject
+                    if (!foldersRes.ok)
+                        return foldersRes.json().then((e) => Promise.reject(e));
+
+                    return Promise.all([notesRes.json(), foldersRes.json()]);
+                })
+                .then(([notes, folders]) => {
+                    this.setState({ notes, folders });
+                })
+                .catch((error) => {
+                    console.error({ error });
+                });
+        }
+    }
 
     componentDidMount() {
         // grabs all notes and folders from the local JSON server
@@ -89,6 +123,8 @@ class App extends Component {
             notes: this.state.notes,
             folders: this.state.folders,
             deleteNote: this.handleDeleteNote,
+            addFolder: this.addFolder,
+            addNote: this.addNote,
         };
         return (
             <ApiContext.Provider value={value}>
