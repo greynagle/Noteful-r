@@ -1,12 +1,13 @@
 import React from "react";
 import ApiContext from "../ApiContext";
-import PropTypes from 'prop-types'
-import './AddFolder.css'
+import PropTypes from "prop-types";
+import "./AddFolder.css";
+import config from "../config"
 
 export default class AddFolder extends React.Component {
     state = {
         folderName: "",
-		validName:true,
+        validName: true,
         id: "",
     };
 
@@ -31,47 +32,46 @@ export default class AddFolder extends React.Component {
         e.preventDefault();
         const { folders } = this.context;
 
-		if(this.state.folderName.trim()==="" || folders.map(val=> val.name).includes(this.state.folderName)){
-			return this.setState({validName:false})
-		}
-        fetch("https://helloacm.com/api/random/?n=16")
-            .then((res) => res.json())
-            .then((id) => {
-                fetch("http://localhost:9090/folders/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        id: id,
-                        name: this.state.folderName,
-                    }),
+        if (
+            this.state.folderName.trim() === "" ||
+            folders.map((val) => val.name).includes(this.state.folderName)
+        ) {
+            return this.setState({ validName: false });
+        }
+
+        fetch(`${config.API_ENDPOINT}/folders/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id: id,
+                name: this.state.folderName,
+            }),
+        })
+            .then(() =>
+                this.setState({
+                    folderName: "",
+                    validName: true,
                 })
-                    .then(() =>
-                        this.setState({
-                            folderName: "",
-							validName:true
-                        })
-                    )
-                    .catch((error) => {
-                        console.error({ error });
-                    });
-            })
+            )
             .catch((error) => {
                 console.error({ error });
             });
     };
 
     render() {
-		let varClass = 'hidden'
-		if(!this.state.validName){
-			varClass = 'error'
-		}
+        let varClass = "hidden";
+        if (!this.state.validName) {
+            varClass = "error";
+        }
         return (
             <section className="AddNote">
                 <form onSubmit={this.handleSubmit}>
-                    <span className={varClass}>Please enter a valid/unused folder name</span>
-					<label htmlFor="Folder_Name" />
+                    <span className={varClass}>
+                        Please enter a valid/unused folder name
+                    </span>
+                    <label htmlFor="Folder_Name" />
                     <input
                         type="text"
                         id="Folder_Name"

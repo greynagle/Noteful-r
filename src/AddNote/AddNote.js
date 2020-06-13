@@ -2,6 +2,7 @@ import React from "react";
 import ApiContext from "../ApiContext";
 import "./AddNote.css";
 import PropTypes from "prop-types";
+import config from "../config"
 
 export default class AddNote extends React.Component {
     state = {
@@ -10,7 +11,7 @@ export default class AddNote extends React.Component {
         noteContent: "",
         validContent: false,
         folderChoiceId: "",
-		submitted:false,
+        submitted: false,
     };
 
     static defaultProps = {
@@ -45,56 +46,48 @@ export default class AddNote extends React.Component {
     };
 
     handleSubmit = (e) => {
-		const { addNote } = this.context
+        const { addNote } = this.context;
         e.preventDefault();
-		this.setState({submitted:true})
-		this.state.noteLabel.trim() !== ""
+        this.setState({ submitted: true });
+        this.state.noteLabel.trim() !== ""
             ? this.setState({ validLabel: true })
             : this.setState({ validLabel: false });
-		this.state.noteContent.trim() !== ""
+        this.state.noteContent.trim() !== ""
             ? this.setState({ validContent: true })
             : this.setState({ validContent: false });
 
-        if (this.state.noteLabel.trim() !== "" && this.state.noteContent.trim() !== "") {
-            return fetch("https://helloacm.com/api/random/?n=16")
+        if (
+            this.state.noteLabel.trim() !== "" &&
+            this.state.noteContent.trim() !== ""
+        ) {
+            return fetch(`${config.API_ENDPOINT}/notes/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: this.state.noteLabel,
+                    mod_date: new Date().toISOString(),
+                    content: this.state.noteContent,
+                    folder_Id: this.state.folderChoiceId,
+                }),
+            })
                 .then((res) => res.json())
-                .then((id) => {
-                    fetch("http://localhost:9090/notes/", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            id: id,
-                            name: this.state.noteLabel,
-                            modified: new Date().toISOString(),
-                            folderId: this.state.folderChoiceId,
-                            content: this.state.noteContent,
-                        }),
+                .then((resJson) => addNote(resJson))
+                .then(() =>
+                    this.setState({
+                        noteLabel: "",
+                        validLabel: false,
+                        noteContent: "",
+                        validContent: false,
+                        folderChoiceId: "",
+                        submitted: false,
                     })
-                        .then((res) => res.json())
-                        .then((resJson) => 
-							addNote(resJson)	
-						)
-                        .then(() =>
-                            this.setState({
-                                noteLabel: "",
-                                validLabel: false,
-                                noteContent: "",
-                                validContent: false,
-                                folderChoiceId: "",
-								submitted:false
-                            })
-                        )
-                        .catch((error) => {
-                            console.error({ error });
-                        });
-                })
+                )
                 .catch((error) => {
                     console.error({ error });
                 });
         }
-
     };
 
     render() {
