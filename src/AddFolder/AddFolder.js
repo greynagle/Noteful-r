@@ -2,7 +2,7 @@ import React from "react";
 import ApiContext from "../ApiContext";
 import PropTypes from "prop-types";
 import "./AddFolder.css";
-import config from "../config"
+import config from "../config";
 
 export default class AddFolder extends React.Component {
     state = {
@@ -31,7 +31,6 @@ export default class AddFolder extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault();
         const { folders } = this.context;
-
         if (
             this.state.folderName.trim() === "" ||
             folders.map((val) => val.name).includes(this.state.folderName)
@@ -43,18 +42,24 @@ export default class AddFolder extends React.Component {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${config.API_TOKEN}`,
             },
             body: JSON.stringify({
-                id: id,
                 name: this.state.folderName,
             }),
         })
-            .then(() =>
-                this.setState({
-                    folderName: "",
-                    validName: true,
-                })
-            )
+            .then((res) => {
+                if (!res.ok) {
+                    return res.json().then((e) => Promise.reject(e));
+                }
+				return res.json()
+            })
+			.then(resJSON => {
+				this.context.addFolder(resJSON)
+			})
+            .then(() => {
+				this.props.history.push(`/`)
+            })
             .catch((error) => {
                 console.error({ error });
             });

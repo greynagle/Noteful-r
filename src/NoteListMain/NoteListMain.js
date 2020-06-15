@@ -18,9 +18,9 @@ export default class NoteListMain extends React.Component {
     static contextType = ApiContext;
 
     render() {
-        const { folderId } = this.props.match.params;
+        const { folder_name } = this.props.match.params;
         const { notes = [] } = this.context;
-        const notesForFolder = getNotesForFolder(notes, folderId);
+        const notesForFolder = getNotesForFolder(notes, folder_name);
         return (
             <section className="NoteListMain">
                 <ul>
@@ -30,7 +30,7 @@ export default class NoteListMain extends React.Component {
                                 <Note
                                     id={note.id}
                                     name={note.name}
-                                    modified={note.modified}
+                                    mod_date={note.mod_date}
                                 />
                             </ErrorHandler>
                         </li>

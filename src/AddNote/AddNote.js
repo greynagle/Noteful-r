@@ -2,7 +2,7 @@ import React from "react";
 import ApiContext from "../ApiContext";
 import "./AddNote.css";
 import PropTypes from "prop-types";
-import config from "../config"
+import config from "../config";
 
 export default class AddNote extends React.Component {
     state = {
@@ -10,7 +10,7 @@ export default class AddNote extends React.Component {
         validLabel: false,
         noteContent: "",
         validContent: false,
-        folderChoiceId: "",
+        folderChoiceId: 1,
         submitted: false,
     };
 
@@ -64,26 +64,22 @@ export default class AddNote extends React.Component {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${config.API_TOKEN}`,
                 },
                 body: JSON.stringify({
                     name: this.state.noteLabel,
                     mod_date: new Date().toISOString(),
                     content: this.state.noteContent,
-                    folder_Id: this.state.folderChoiceId,
+                    folder_id: this.state.folderChoiceId,
                 }),
             })
-                .then((res) => res.json())
-                .then((resJson) => addNote(resJson))
-                .then(() =>
-                    this.setState({
-                        noteLabel: "",
-                        validLabel: false,
-                        noteContent: "",
-                        validContent: false,
-                        folderChoiceId: "",
-                        submitted: false,
-                    })
-                )
+                .then((res) => {
+                    return res.json();
+                })
+                .then((resJson) => {
+                    addNote(resJson);
+                })
+                .then(() => this.props.history.push(`/`))
                 .catch((error) => {
                     console.error({ error });
                 });

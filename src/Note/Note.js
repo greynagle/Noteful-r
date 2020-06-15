@@ -2,10 +2,14 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPen } from "@fortawesome/free-solid-svg-icons";
+import { library } from "@fortawesome/fontawesome-svg-core";
 import ApiContext from "../ApiContext";
 import config from "../config";
 import PropTypes from "prop-types";
 import "./Note.css";
+
+library.add(faPen);
 
 export default class Note extends React.Component {
     static defaultProps = {
@@ -15,22 +19,18 @@ export default class Note extends React.Component {
 
     handleClickDelete = (e) => {
         e.preventDefault();
-        const noteId = this.props.id;
 
-        fetch(`${config.API_ENDPOINT}/notes/${noteId}`, {
+        fetch(`${config.API_ENDPOINT}/notes/${this.props.id}`, {
             method: "DELETE",
             headers: {
                 "content-type": "application/json",
+                Authorization: `Bearer ${config.API_TOKEN}`,
             },
         })
-            .then((res) => {
-                if (!res.ok) return res.json().then((e) => Promise.reject(e));
-                return res.json();
-            })
             .then(() => {
-                this.context.deleteNote(noteId);
-                // allow parent to perform extra behaviour
-                this.props.onDeleteNote(noteId);
+                this.context.deleteNote(this.props.id);
+                this.props.onDeleteNote(this.props.id);
+
             })
             .catch((error) => {
                 console.error({ error });
@@ -38,7 +38,8 @@ export default class Note extends React.Component {
     };
 
     render() {
-        const { name, id, modified } = this.props;
+		// console.log(this.props)
+        const { name, id, mod_date } = this.props;
         return (
             <div className="Note">
                 <h2 className="Note__title">
@@ -49,13 +50,20 @@ export default class Note extends React.Component {
                     type="button"
                     onClick={this.handleClickDelete}
                 >
+                    {/* <FontAwesomeIcon icon="pen" /> update
+                </button>
+                <button
+                    className="Note__delete"
+                    type="button"
+                    onClick={this.handleClickDelete}
+                > */}
                     <FontAwesomeIcon icon="trash-alt" /> remove
                 </button>
                 <div className="Note__dates">
                     <div className="Note__dates-modified">
                         Modified{" "}
                         <span className="Date">
-                            {format(modified, "Do MMM YYYY")}
+                            {format(mod_date, "Do MMM YYYY")}
                         </span>
                     </div>
                 </div>
@@ -65,8 +73,8 @@ export default class Note extends React.Component {
 }
 
 Note.propTypes = {
-    id: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    modified: PropTypes.string.isRequired,
+    mod_date: PropTypes.string.isRequired,
     onDeleteNote: PropTypes.func.isRequired,
 };

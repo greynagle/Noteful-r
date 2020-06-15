@@ -18,19 +18,55 @@ class App extends Component {
             notes: [],
             folders: [],
         };
-        this.addFolder = (folder) =>
-            this.setState({ ...this.state.folders, folder });
-        this.addNote = (note) => this.setState({ ...this.state.notes, note });
     }
 
-    componentDidUpdate(prevState) {
+    compareLoop(a, b) {
+        // console.log("prev", a, "new", b);
+
+        let flag = false;
+        const keyNames = Object.keys(a[0]);
+        // console.log("keynames", keyNames);
+        if (a.length !== b.length) {
+            flag = true;
+        } else {
+            for (let i = 0; i < a.length; i++) {
+                for (let j = 0; j < keyNames.length; j++) {
+                    // console.log("a", a[i][keyNames[j]], "b", b[i][keyNames[j]]);
+                    if (a[i][`${keyNames[j]}`] !== b[i][`${keyNames[j]}`]) {
+                        console.log("broken flag");
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return flag;
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        // console.log("prevstate", prevState);
+        debugger;
         if (
-            prevState.notes !== this.state.notes ||
-            prevState.folders !== this.state.folders
+            prevState.notes.length !== 0 &&
+            prevState.folders.length !== 0 &&
+            this.compareLoop(prevState.notes, this.state.notes) &&
+            this.compareLoop(prevState.folders, this.state.folders)
         ) {
+            // console.log("calling update");
             Promise.all([
-                fetch(`${config.API_ENDPOINT}/notes`),
-                fetch(`${config.API_ENDPOINT}/folders`),
+                fetch(`${config.API_ENDPOINT}/notes`, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${config.API_TOKEN}`,
+                    },
+                }),
+                fetch(`${config.API_ENDPOINT}/folders`, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${config.API_TOKEN}`,
+                    },
+                }),
             ])
                 .then(([notesRes, foldersRes]) => {
                     // if notes break, reject
@@ -53,9 +89,33 @@ class App extends Component {
 
     componentDidMount() {
         // grabs all notes and folders from the local JSON server
-        fetch(`${config.API_ENDPOINT}/all`)
-            .then(res => {
-                console.log(res)
+        Promise.all([
+            fetch(`${config.API_ENDPOINT}/notes`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${config.API_TOKEN}`,
+                },
+            }),
+            fetch(`${config.API_ENDPOINT}/folders`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${config.API_TOKEN}`,
+                },
+            }),
+        ])
+            .then(([notesRes, foldersRes]) => {
+                // if notes break, reject
+                if (!notesRes.ok)
+                    return notesRes.json().then((e) => Promise.reject(e));
+                // if folders break reject
+                if (!foldersRes.ok)
+                    return foldersRes.json().then((e) => Promise.reject(e));
+
+                return Promise.all([notesRes.json(), foldersRes.json()]);
+            })
+            .then(([notes, folders]) => {
+                // console.log(notes, folders);
+                this.setState({ notes, folders });
             })
             .catch((error) => {
                 console.error({ error });
@@ -66,6 +126,14 @@ class App extends Component {
         this.setState({
             notes: this.state.notes.filter((note) => note.id !== noteId),
         });
+    };
+
+    addFolder = (folder) => {
+        this.setState({ folders: [...this.state.folders, folder] });
+    };
+
+    addNote = (note) => {
+        this.setState({ notes: [...this.state.notes, note] });
     };
 
     renderNavRoutes() {
