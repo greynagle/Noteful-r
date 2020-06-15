@@ -39,8 +39,8 @@ export default class AddFolder extends React.Component {
         }
 
         fetch(`${config.API_ENDPOINT}/folders/`, {
-            credentials:"same-origin",
-			method: "POST",
+            mode: "cors",
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${config.API_TOKEN}`,
@@ -53,13 +53,13 @@ export default class AddFolder extends React.Component {
                 if (!res.ok) {
                     return res.json().then((e) => Promise.reject(e));
                 }
-				return res.json()
+                return res.json();
             })
-			.then(resJSON => {
-				this.context.addFolder(resJSON)
-			})
+            .then((resJSON) => {
+                this.context.addFolder(resJSON);
+            })
             .then(() => {
-				this.props.history.push(`/`)
+                this.props.history.push(`/`);
             })
             .catch((error) => {
                 console.error({ error });

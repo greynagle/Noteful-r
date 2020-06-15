@@ -21,7 +21,7 @@ export default class Note extends React.Component {
         e.preventDefault();
 
         fetch(`${config.API_ENDPOINT}/notes/${this.props.id}`, {
-            credentials: "same-origin",
+            mode: "cors",
             method: "DELETE",
             headers: {
                 "content-type": "application/json",
