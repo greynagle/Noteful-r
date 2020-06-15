@@ -21,6 +21,7 @@ export default class Note extends React.Component {
         e.preventDefault();
 
         fetch(`${config.API_ENDPOINT}/notes/${this.props.id}`, {
+            credentials: "same-origin",
             method: "DELETE",
             headers: {
                 "content-type": "application/json",
@@ -30,7 +31,6 @@ export default class Note extends React.Component {
             .then(() => {
                 this.context.deleteNote(this.props.id);
                 this.props.onDeleteNote(this.props.id);
-
             })
             .catch((error) => {
                 console.error({ error });
@@ -38,7 +38,7 @@ export default class Note extends React.Component {
     };
 
     render() {
-		// console.log(this.props)
+        // console.log(this.props)
         const { name, id, mod_date } = this.props;
         return (
             <div className="Note">

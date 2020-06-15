@@ -46,7 +46,6 @@ class App extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         // console.log("prevstate", prevState);
-        debugger;
         if (
             prevState.notes.length !== 0 &&
             prevState.folders.length !== 0 &&
@@ -56,12 +55,14 @@ class App extends Component {
             // console.log("calling update");
             Promise.all([
                 fetch(`${config.API_ENDPOINT}/notes`, {
+                    credentials: "same-origin",
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${config.API_TOKEN}`,
                     },
                 }),
                 fetch(`${config.API_ENDPOINT}/folders`, {
+                    credentials: "same-origin",
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${config.API_TOKEN}`,
@@ -91,12 +92,14 @@ class App extends Component {
         // grabs all notes and folders from the local JSON server
         Promise.all([
             fetch(`${config.API_ENDPOINT}/notes`, {
+                credentials: "same-origin",
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${config.API_TOKEN}`,
                 },
             }),
             fetch(`${config.API_ENDPOINT}/folders`, {
+                credentials: "same-origin",
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${config.API_TOKEN}`,

@@ -39,7 +39,8 @@ export default class AddFolder extends React.Component {
         }
 
         fetch(`${config.API_ENDPOINT}/folders/`, {
-            method: "POST",
+            credentials:"same-origin",
+			method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${config.API_TOKEN}`,

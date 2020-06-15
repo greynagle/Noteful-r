@@ -61,6 +61,7 @@ export default class AddNote extends React.Component {
             this.state.noteContent.trim() !== ""
         ) {
             return fetch(`${config.API_ENDPOINT}/notes/`, {
+                credentials: "same-origin",
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
